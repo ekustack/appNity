@@ -1,0 +1,45 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Web to APK</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    input, button { display: block; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Upload Your Web App</h1>
+  <form id="upload-form">
+    <input type="file" name="zip" accept=".zip" required />
+    <input type="text" name="appName" placeholder="App Name" required />
+    <input type="text" name="packageName" placeholder="Package Name (e.g., com.example.myapp)" required />
+    <input type="file" name="icon" accept=".png,.jpg,.jpeg,.webp" />
+    <button type="submit">Build APK</button>
+  </form>
+
+  <div id="status"></div>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      document.getElementById('status').innerText = 'Uploading...';
+
+      const response = await fetch('/.netlify/functions/build', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      if (result.downloadUrl) {
+        document.getElementById('status').innerHTML = `<a href="${result.downloadUrl}">Download APK</a>`;
+      } else {
+        document.getElementById('status').innerText = 'Failed: ' + result.error;
+      }
+    });
+  </script>
+</body>
+</html>
